@@ -21,7 +21,7 @@
 #include <cctype>
 #include <cmath>
 #include <limits>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace arms_ros2_control::command
 {
@@ -3635,8 +3635,8 @@ namespace arms_ros2_control::command
             }
             else if (now >= topology_request_deadline_)
             {
-                list_controllers_client_->remove_pending_request(
-                    pending_topology_request_->request_id);
+                // Foxy has no remove_pending_request(); dropping the future is
+                // all we can do, the client discards the late reply on its own.
                 pending_topology_request_.reset();
                 control_topology_.store(ControlTopology::UNKNOWN);
                 RCLCPP_WARN_THROTTLE(

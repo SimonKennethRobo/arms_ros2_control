@@ -15,6 +15,14 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
+try:
+    # Foxy/Galactic install the spawner as `spawner.py`; renamed to `spawner`
+    # in Humble. Newer robot_common_launch exports a probe for it.
+    from robot_common_launch import spawner_executable as _spawner_executable
+except ImportError:  # older robot_common_launch
+    def _spawner_executable() -> str:
+        return "spawner"
+
 from robot_common_launch import (
     RobotConfigMeta,
     build_planning_urdf_launch_params,
@@ -450,8 +458,10 @@ def create_main_controller_spawner(
     print(f"[INFO] OCS2 planning URDF: {plan_path} (params: {param_file})")
     spawner = Node(
         package="controller_manager",
-        executable="spawner",
-        arguments=[controller_name, "-p", param_file],
+        executable=_spawner_executable(),
+        # Foxy spawner.py waits only 10 s for the controller_manager by default;
+        # loading the OCS2 controller (CppAD, Pinocchio) can take longer than that.
+        arguments=[controller_name, "-p", param_file, "--controller-manager-timeout", "120"],
         output="screen",
     )
     return spawner, param_file

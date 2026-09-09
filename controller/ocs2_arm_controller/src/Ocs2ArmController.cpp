@@ -55,9 +55,22 @@ namespace ocs2::mobile_manipulator
         return conf;
     }
 
-    controller_interface::return_type Ocs2ArmController::update(const rclcpp::Time& time,
-                                                                const rclcpp::Duration& period)
+    controller_interface::return_type Ocs2ArmController::update()
     {
+        // Foxy's ControllerInterface::update() takes no arguments (time/period were
+        // added in Galactic). Derive them from the node clock so the FSM below keeps
+        // the same contract it has on newer distros.
+        const rclcpp::Time time = get_node()->now();
+        // Foxy's rclcpp::Duration has no from_nanoseconds(); use the explicit ctor.
+        rclcpp::Duration period{
+            static_cast<rcl_duration_value_t>(1e9 / std::max(1, ctrl_interfaces_.frequency_))};
+        if (last_update_time_valid_ && time > last_update_time_)
+        {
+            period = time - last_update_time_;
+        }
+        last_update_time_ = time;
+        last_update_time_valid_ = true;
+
         const std::string fsm = current_state_ ? current_state_->state_name_string : "none";
         ctrl_comp_->beginRtCycle();
         ctrl_comp_->applyRtLoopSchedulingOnce();
@@ -131,15 +144,25 @@ namespace ocs2::mobile_manipulator
         return controller_interface::return_type::OK;
     }
 
-    controller_interface::CallbackReturn Ocs2ArmController::on_init()
+    controller_interface::return_type Ocs2ArmController::init(const std::string& controller_name)
     {
+        // Foxy has no on_init(): the base init() is what creates node_, so it must run
+        // before any get_node() / auto_declare call below.
+        if (const auto ret = ControllerInterface::init(controller_name);
+            ret != controller_interface::return_type::OK)
+        {
+            return ret;
+        }
+
         try
         {
             // Get controller name
             controller_name_ = get_node()->get_name();
 
-            // Get update frequency
-            get_node()->get_parameter("update_rate", ctrl_interfaces_.frequency_);
+            // Get update frequency. Foxy's controller_manager keeps update_rate on its
+            // own node instead of pushing it onto each controller, so declare it here
+            // and fall back to the CtrlInterfaces default when it is not provided.
+            ctrl_interfaces_.frequency_ = auto_declare<int>("update_rate", ctrl_interfaces_.frequency_);
             RCLCPP_INFO(get_node()->get_logger(), "Controller Manager Update Rate: %d Hz", ctrl_interfaces_.frequency_);
 
             // Hardware parameters
@@ -328,16 +351,16 @@ namespace ocs2::mobile_manipulator
                 }
             }
 
-            return CallbackReturn::SUCCESS;
+            return controller_interface::return_type::OK;
         }
         catch (const std::exception& e)
         {
             fprintf(stderr, "Exception thrown during init stage with message: %s \n", e.what());
-            return controller_interface::CallbackReturn::ERROR;
+            return controller_interface::return_type::ERROR;
         }
     }
 
-    controller_interface::CallbackReturn Ocs2ArmController::on_configure(
+    Ocs2ArmController::CallbackReturn Ocs2ArmController::on_configure(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         fsm_state_publisher_ = get_node()->create_publisher<std_msgs::msg::Int32>(
@@ -469,7 +492,7 @@ namespace ocs2::mobile_manipulator
         return CallbackReturn::SUCCESS;
     }
 
-    controller_interface::CallbackReturn Ocs2ArmController::on_activate(
+    Ocs2ArmController::CallbackReturn Ocs2ArmController::on_activate(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         // clear out vectors in case of restart
@@ -532,7 +555,7 @@ namespace ocs2::mobile_manipulator
         return CallbackReturn::SUCCESS;
     }
 
-    controller_interface::CallbackReturn Ocs2ArmController::on_deactivate(
+    Ocs2ArmController::CallbackReturn Ocs2ArmController::on_deactivate(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         if (ctrl_comp_)
@@ -543,19 +566,19 @@ namespace ocs2::mobile_manipulator
         return CallbackReturn::SUCCESS;
     }
 
-    controller_interface::CallbackReturn Ocs2ArmController::on_cleanup(
+    Ocs2ArmController::CallbackReturn Ocs2ArmController::on_cleanup(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         return CallbackReturn::SUCCESS;
     }
 
-    controller_interface::CallbackReturn Ocs2ArmController::on_error(
+    Ocs2ArmController::CallbackReturn Ocs2ArmController::on_error(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         return CallbackReturn::SUCCESS;
     }
 
-    controller_interface::CallbackReturn Ocs2ArmController::on_shutdown(
+    Ocs2ArmController::CallbackReturn Ocs2ArmController::on_shutdown(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         return CallbackReturn::SUCCESS;

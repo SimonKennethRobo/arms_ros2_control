@@ -115,7 +115,7 @@ namespace ocs2::mobile_manipulator
         observation_.time = time.seconds();
         for (size_t i = 0; i < joint_names_.size(); ++i)
         {
-            auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+            auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
             observation_.state[i] = value.value_or(0.0);
         }
         observation_.input = vector_t::Zero(interface_->getManipulatorModelInfo().inputDim);
@@ -209,7 +209,7 @@ namespace ocs2::mobile_manipulator
             vector_t static_torques = calculateStaticTorques();
             for (size_t i = 0; i < joint_names_.size() && i < static_cast<size_t>(static_torques.size()); ++i)
             {
-                std::ignore = ctrl_interfaces_.joint_force_command_interface_[i].get().set_value(static_torques(i));
+                ctrl_interfaces_.joint_force_command_interface_[i].get().set_value(static_torques(i));
             }
             for (size_t i = 0; i < joint_names_.size() && i < static_cast<size_t>(future_state.size()); ++i)
             {
@@ -217,7 +217,7 @@ namespace ocs2::mobile_manipulator
             }
             for (size_t i = 0; i < joint_names_.size() && i < static_cast<size_t>(future_input.size()); ++i)
             {
-                std::ignore = ctrl_interfaces_.joint_velocity_command_interface_[i].get().
+                ctrl_interfaces_.joint_velocity_command_interface_[i].get().
                     set_value(future_input(i));
             }
         }

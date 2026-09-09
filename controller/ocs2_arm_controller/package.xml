@@ -9,25 +9,36 @@
 
 	<buildtool_depend>ament_cmake</buildtool_depend>
 
+	<!-- Directly #included by this package. -->
 	<depend>controller_interface</depend>
+	<depend>hardware_interface</depend>
 	<depend>pluginlib</depend>
+	<depend>rclcpp</depend>
+	<depend>rclcpp_lifecycle</depend>
 	<depend>ament_index_cpp</depend>
-	<depend>ocs2_mobile_manipulator</depend>
 	<depend>std_msgs</depend>
+	<depend>pinocchio</depend>
+	<depend>ocs2_mobile_manipulator</depend>
 	<depend>arms_ros2_control_msgs</depend>
 	<depend>arms_controller_common</depend>
 	<depend>ocs2_controller_common</depend>
 
-	<exec_depend>robot_common_launch</exec_depend>
-	<exec_depend>arms_target_manager</exec_depend>
+	<!-- Runtime: needed to load this controller plugin at all. -->
 	<exec_depend>controller_manager</exec_depend>
-	<exec_depend>ament_index_python</exec_depend>
 	<exec_depend>launch</exec_depend>
 	<exec_depend>launch_ros</exec_depend>
-	<exec_depend>rviz2</exec_depend>
+	<exec_depend>ament_index_python</exec_depend>
 	<exec_depend>python3-yaml</exec_depend>
+
+	<!-- Used by demo.launch.py / _ocs2_launch_common.py: local workspace
+	     packages, so rosdep with ignore-src skips them, not an unresolvable key. -->
+	<exec_depend>robot_common_launch</exec_depend>
+	<exec_depend>arms_target_manager</exec_depend>
+	<exec_depend>rviz2</exec_depend>
+	<!-- demo.rviz loads these panel classes via pluginlib. -->
+	<exec_depend>arms_rviz_control_plugin</exec_depend>
 
 	<export>
 		<build_type>ament_cmake</build_type>
 	</export>
-</package> 
+</package>

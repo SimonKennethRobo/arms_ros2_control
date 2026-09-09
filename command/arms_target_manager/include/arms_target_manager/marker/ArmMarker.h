@@ -12,7 +12,7 @@
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <visualization_msgs/msg/interactive_marker.hpp>
 #include <visualization_msgs/msg/interactive_marker_feedback.hpp>
-#include <tf2_ros/buffer.hpp>
+#include <tf2_ros/buffer.h>
 #include "arms_target_manager/MarkerFactory.h"
 
 namespace arms_ros2_control::command
@@ -58,7 +58,7 @@ namespace arms_ros2_control::command
          * @brief Current pose 原始消息回调函数类型（用于通知外部收到原始 current_pose 消息）
          * @param pose_msg 原始 PoseStamped 消息
          */
-        using CurrentPoseCallback = std::function<void(const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose_msg)>;
+        using CurrentPoseCallback = std::function<void(const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)>;
 
         /**
          * @brief 构造函数
@@ -108,7 +108,7 @@ namespace arms_ros2_control::command
          * @return 转换后的 pose（在 marker_fixed_frame_ 坐标系下）
          */
         geometry_msgs::msg::Pose handleFeedback(
-            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback,
+            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback,
             const std::string& source_frame_id) const;
 
         /**
@@ -116,7 +116,7 @@ namespace arms_ros2_control::command
          * @param pose_msg PoseStamped 消息
          */
         void updateFromTopic(
-            const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose_msg);
+            const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg);
 
         /**
          * @brief 设置更新回调函数

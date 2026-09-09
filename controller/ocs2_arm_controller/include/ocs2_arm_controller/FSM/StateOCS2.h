@@ -26,7 +26,7 @@ namespace ocs2::mobile_manipulator
     {
     public:
         StateOCS2(CtrlInterfaces& ctrl_interfaces,
-                  const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node,
+                  const std::shared_ptr<rclcpp::Node>& node,
                   const std::shared_ptr<CtrlComponent>& ctrl_comp = nullptr);
 
         ~StateOCS2() override;
@@ -46,7 +46,7 @@ namespace ocs2::mobile_manipulator
 
         std::shared_ptr<CtrlComponent> ctrl_comp_;
         CtrlInterfaces& ctrl_interfaces_;
-        std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node_;
+        std::shared_ptr<rclcpp::Node> node_;
 
         std::vector<std::string> joint_names_;
         double mpc_period_{};

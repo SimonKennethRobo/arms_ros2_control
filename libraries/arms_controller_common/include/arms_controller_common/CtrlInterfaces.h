@@ -8,6 +8,7 @@
 #include <hardware_interface/loaned_command_interface.hpp>
 #include <hardware_interface/loaned_state_interface.hpp>
 #include <std_msgs/msg/int32.hpp>
+#include <arms_controller_common/HardwareInterfaceCompat.h>
 
 namespace arms_controller_common
 {
@@ -65,7 +66,7 @@ namespace arms_controller_common
 
         void setJointPositionCommand(size_t index, double value)
         {
-            std::ignore = joint_position_command_interface_[index].get().set_value(value);
+            joint_position_command_interface_[index].get().set_value(value);
             last_sent_joint_positions_[index] = value;
         }
 
@@ -75,7 +76,7 @@ namespace arms_controller_common
             last_sent_joint_positions_.reserve(joint_position_state_interface_.size());
             for (size_t i = 0; i < joint_position_state_interface_.size(); ++i)
             {
-                auto value = joint_position_state_interface_[i].get().get_optional();
+                auto value = arms_controller_common::compat::get_optional(joint_position_state_interface_[i].get());
                 last_sent_joint_positions_.push_back(value.value_or(0.0));
             }
         }

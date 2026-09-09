@@ -24,7 +24,7 @@
 #include <eigen3/Eigen/Dense>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <nav_msgs/msg/path.hpp>
-#include <tf2_ros/buffer.hpp>
+#include <tf2_ros/buffer.h>
 #include "arms_controller_common/utils/WaistLiftingPlaner.h"
 #include "arms_ros2_control_msgs/action/joint_trajectory.hpp"
 #include "arms_ros2_control_msgs/msg/joint_waypoint.hpp"
@@ -61,7 +61,7 @@ namespace arms_controller_common
          * @param gravity_compensation Optional gravity compensation utility (nullptr if not needed)
          */
         explicit StateMoveJ(CtrlInterfaces& ctrl_interfaces,
-                            const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node = nullptr,
+                            const std::shared_ptr<rclcpp::Node>& node = nullptr,
                             const std::vector<std::string>& joint_names = {},
                             const std::shared_ptr<GravityCompensation>& gravity_compensation = nullptr);
 
@@ -343,7 +343,7 @@ namespace arms_controller_common
             std::string& message,
             double& estimated_duration);
 
-        std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node_;
+        std::shared_ptr<rclcpp::Node> node_;
         std::shared_ptr<GravityCompensation> gravity_compensation_;
 
         double duration_{3.0}; // Interpolation duration in seconds

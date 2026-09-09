@@ -9,7 +9,7 @@
 #include <string>
 #include <std_msgs/msg/int32.hpp>
 #include <geometry_msgs/msg/point_stamped.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 // // planners/kinematics required for cartesian moveL support
 // #include "lina_planning/planning/path_planner/movel.h"
@@ -90,7 +90,7 @@ namespace arms_controller_common
     }
 
     StateMoveJ::StateMoveJ(CtrlInterfaces& ctrl_interfaces,
-                           const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node,
+                           const std::shared_ptr<rclcpp::Node>& node,
                            const std::vector<std::string>& joint_names,
                            const std::shared_ptr<GravityCompensation>& gravity_compensation)
         : FSMState(FSMStateName::MOVEJ, "movej", ctrl_interfaces),
@@ -382,7 +382,7 @@ namespace arms_controller_common
         start_pos_.clear();
         for (auto i : ctrl_interfaces_.joint_position_state_interface_)
         {
-            auto value = i.get().get_optional();
+            auto value = arms_controller_common::compat::get_optional(i.get());
             start_pos_.push_back(value.value_or(0.0));
         }
         refreshHoldPositions();
@@ -433,7 +433,7 @@ namespace arms_controller_common
 
         for (size_t i = 0; i < num_joints; ++i)
         {
-            const auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+            const auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
             current_joint_pos_[i] = value.value_or(0.0);
         }
 
@@ -832,7 +832,7 @@ namespace arms_controller_common
                 std::vector<double> commanded_positions;
                 for (auto i : ctrl_interfaces_.joint_position_command_interface_)
                 {
-                    auto value = i.get().get_optional();
+                    auto value = arms_controller_common::compat::get_optional(i.get());
                     commanded_positions.push_back(value.value_or(0.0));
                 }
 
@@ -844,7 +844,7 @@ namespace arms_controller_common
                 for (size_t i = 0; i < ctrl_interfaces_.joint_force_command_interface_.size() &&
                      i < static_torques.size(); ++i)
                 {
-                    std::ignore = ctrl_interfaces_.joint_force_command_interface_[i].get().set_value(static_torques[i]);
+                    ctrl_interfaces_.joint_force_command_interface_[i].get().set_value(static_torques[i]);
                 }
             }
             return;
@@ -1029,7 +1029,7 @@ namespace arms_controller_common
             std::vector<double> interpolated_positions;
             for (auto i : ctrl_interfaces_.joint_position_command_interface_)
             {
-                auto value = i.get().get_optional();
+                auto value = arms_controller_common::compat::get_optional(i.get());
                 interpolated_positions.push_back(value.value_or(0.0));
             }
 
@@ -1041,7 +1041,7 @@ namespace arms_controller_common
             for (size_t i = 0; i < ctrl_interfaces_.joint_force_command_interface_.size() &&
                  i < static_torques.size(); ++i)
             {
-                std::ignore = ctrl_interfaces_.joint_force_command_interface_[i].get().set_value(static_torques[i]);
+                ctrl_interfaces_.joint_force_command_interface_[i].get().set_value(static_torques[i]);
             }
         }
     }
@@ -1471,7 +1471,7 @@ namespace arms_controller_common
             for (size_t i = 0; i < ctrl_interfaces_.joint_position_state_interface_.size() &&
                  i < target_pos_.size(); ++i)
             {
-                auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+                auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
                 target_pos_[i] = value.value_or(0.0);
             }
         }
@@ -1797,7 +1797,7 @@ namespace arms_controller_common
         current_positions.reserve(joint_names_.size());
         for (auto i : ctrl_interfaces_.joint_position_state_interface_)
         {
-            auto value = i.get().get_optional();
+            auto value = arms_controller_common::compat::get_optional(i.get());
             current_positions.push_back(value.value_or(0.0));
         }
 
@@ -2639,8 +2639,7 @@ namespace arms_controller_common
         }
         else if (waist_turning_joint_index_ < ctrl_interfaces_.joint_position_state_interface_.size())
         {
-            auto value = ctrl_interfaces_.joint_position_state_interface_[waist_turning_joint_index_].get().
-                get_optional();
+            auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[waist_turning_joint_index_].get());
             angles3d(0) = value.value_or(0.0);
         }
 
@@ -2883,13 +2882,13 @@ namespace arms_controller_common
             Eigen::VectorXd angles = Eigen::VectorXd::Zero(2);
             if (waist_lift_joint_index_ < ctrl_interfaces_.joint_position_state_interface_.size())
             {
-                auto value = ctrl_interfaces_.joint_position_state_interface_[waist_lift_joint_index_].get().get_optional();
+                auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[waist_lift_joint_index_].get());
                 angles(0) = value.value_or(0.0);
             }
             if (waist_single_joint_has_pitch_ &&
                 waist_pitch_joint_index_ < ctrl_interfaces_.joint_position_state_interface_.size())
             {
-                auto value = ctrl_interfaces_.joint_position_state_interface_[waist_pitch_joint_index_].get().get_optional();
+                auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[waist_pitch_joint_index_].get());
                 angles(1) = value.value_or(0.0);
             }
             return angles;
@@ -2900,7 +2899,7 @@ namespace arms_controller_common
         for (size_t i = 0; i < waist_joint_count_ &&
              i < ctrl_interfaces_.joint_position_state_interface_.size(); i++)
         {
-            auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+            auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
             angles(i) = value.value_or(0.0);
         }
 
@@ -3265,7 +3264,7 @@ namespace arms_controller_common
             {
                 if (joint_names_[i] == req_joint)
                 {
-                    auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+                    auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
                     positions.push_back(value.value_or(0.0));
                     break;
                 }
@@ -3285,7 +3284,7 @@ namespace arms_controller_common
         for (size_t i = 0; i < joint_names_.size() &&
              i < ctrl_interfaces_.joint_position_state_interface_.size(); i++)
         {
-            auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+            auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
             full_positions[i] = value.value_or(0.0);
         }
 
@@ -3454,7 +3453,7 @@ namespace arms_controller_common
                 start_pos_.reserve(ctrl_interfaces_.joint_position_state_interface_.size());
                 for (auto i : ctrl_interfaces_.joint_position_state_interface_)
                 {
-                    auto value = i.get().get_optional();
+                    auto value = arms_controller_common::compat::get_optional(i.get());
                     start_pos_.push_back(value.value_or(0.0));
                 }
 
@@ -4628,7 +4627,7 @@ namespace arms_controller_common
 
         for (size_t i = 0; i < num_joints; ++i)
         {
-            auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+            auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
             angles(i) = value.value_or(0.0);
         }
         return angles;

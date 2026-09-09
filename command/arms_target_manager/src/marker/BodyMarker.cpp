@@ -70,14 +70,14 @@ visualization_msgs::msg::InteractiveMarker BodyMarker::createMarker(
 }
 
 geometry_msgs::msg::Pose BodyMarker::handleFeedback(
-    const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback,
+    const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback,
     const std::string& source_frame_id) const
 {
     return transformPose(feedback->pose, source_frame_id, frame_id_);
 }
 
 void BodyMarker::updateFromTopic(
-    const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose_msg)
+    const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)
 {
     if (!pose_msg) {
         return;
@@ -111,7 +111,7 @@ void BodyMarker::updateFromTopic(
 }
 
 void BodyMarker::updateTargetFromTopic(
-    const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose_msg)
+    const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)
 {
     if (!pose_msg)
     {

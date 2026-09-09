@@ -20,6 +20,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CONTROLLER_INCLUDE_DEPENDS
         pluginlib
         controller_interface
+        hardware_interface
         ament_index_cpp
         ocs2_mobile_manipulator
         ocs2_controller_common
@@ -52,9 +53,17 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_compile_options(${PROJECT_NAME} PUBLIC ${OCS2_PINOCCHIO_FLAGS})
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${OCS2_CXX_DEFINITIONS})
 
+# Foxy's ros2_control (0.11) exports no CMake targets, so ${controller_interface_TARGETS}
+# is empty and neither its headers nor libcontroller_interface.so would be picked up.
+# ament_target_dependencies covers the old ament_export_libraries style; it also pulls
+# in hardware_interface, whose loaned_*_interface.hpp this controller includes directly.
+ament_target_dependencies(${PROJECT_NAME} PUBLIC
+        controller_interface
+        hardware_interface
+)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC
         ${pluginlib_TARGETS}
-        ${controller_interface_TARGETS}
         ament_index_cpp::ament_index_cpp
         ${ocs2_mobile_manipulator_TARGETS}
         ${ocs2_controller_common_TARGETS}

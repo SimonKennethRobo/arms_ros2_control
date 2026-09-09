@@ -11,7 +11,7 @@
 namespace ocs2::mobile_manipulator
 {
     StateOCS2::StateOCS2(CtrlInterfaces& ctrl_interfaces,
-                         const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node,
+                         const std::shared_ptr<rclcpp::Node>& node,
                          const std::shared_ptr<CtrlComponent>& ctrl_comp)
         : FSMState(FSMStateName::OCS2, "ocs2", ctrl_interfaces), ctrl_comp_(ctrl_comp), ctrl_interfaces_(ctrl_interfaces), node_(node)
     {
@@ -58,11 +58,11 @@ namespace ocs2::mobile_manipulator
 
                 for (size_t i = 0; i < ctrl_interfaces_.joint_kp_command_interface_.size(); ++i)
                 {
-                    std::ignore = ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(kp);
+                    ctrl_interfaces_.joint_kp_command_interface_[i].get().set_value(kp);
                 }
                 for (size_t i = 0; i < ctrl_interfaces_.joint_kd_command_interface_.size(); ++i)
                 {
-                    std::ignore = ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(kd);
+                    ctrl_interfaces_.joint_kd_command_interface_[i].get().set_value(kd);
                 }
             }
             else

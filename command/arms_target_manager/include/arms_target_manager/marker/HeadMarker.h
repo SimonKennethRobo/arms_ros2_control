@@ -17,8 +17,8 @@
 #include <sensor_msgs/msg/joint_state.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <std_msgs/msg/string.hpp>
-#include <tf2_ros/buffer.hpp>
-#include <tf2_ros/transform_listener.hpp>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
 #include <arms_controller_common/utils/JointLimitsManager.h>
 #include <arms_controller_common/utils/AngleUtils.h>
 
@@ -103,7 +103,7 @@ namespace arms_ros2_control::command
          * @return 更新后的 pose（用于更新 marker 位置）
          */
         geometry_msgs::msg::Pose updateFromJointState(
-            const sensor_msgs::msg::JointState::ConstSharedPtr& joint_msg,
+            const sensor_msgs::msg::JointState::ConstSharedPtr joint_msg,
             bool is_state_disabled);
 
         /**
@@ -142,7 +142,7 @@ namespace arms_ros2_control::command
          * @brief 初始化关节索引（从 joint_states 中查找）
          * @param joint_msg 关节状态消息
          */
-        void initializeJointIndices(const sensor_msgs::msg::JointState::ConstSharedPtr& joint_msg);
+        void initializeJointIndices(const sensor_msgs::msg::JointState::ConstSharedPtr joint_msg);
 
         /**
          * @brief 从关节状态提取 RPY 角度
@@ -153,7 +153,7 @@ namespace arms_ros2_control::command
          * @return 是否成功提取到角度
          */
         bool extractRPYFromJointState(
-            const sensor_msgs::msg::JointState::ConstSharedPtr& joint_msg,
+            const sensor_msgs::msg::JointState::ConstSharedPtr joint_msg,
             double& head_roll,
             double& head_pitch,
             double& head_yaw) const;

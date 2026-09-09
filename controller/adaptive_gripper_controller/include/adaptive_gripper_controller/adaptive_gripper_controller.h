@@ -36,31 +36,32 @@ namespace adaptive_gripper_controller
         /**
          * @brief 控制器更新函数
          */
-        controller_interface::return_type update(
-            const rclcpp::Time& time, const rclcpp::Duration& period) override;
+        // Foxy: update() takes no time/period (added in Galactic).
+        controller_interface::return_type update() override;
+
+        // Foxy has no controller_interface::CallbackReturn alias.
+        using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
         /**
-         * @brief 控制器初始化
+         * @brief 控制器初始化。Foxy 没有 on_init()，改为 init(controller_name)，
+         *        必须先调用基类 init() 创建 node_。
          */
-        controller_interface::CallbackReturn on_init() override;
+        controller_interface::return_type init(const std::string& controller_name) override;
 
         /**
          * @brief 控制器配置
          */
-        controller_interface::CallbackReturn on_configure(
-            const rclcpp_lifecycle::State& previous_state) override;
+        CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
 
         /**
          * @brief 控制器激活
          */
-        controller_interface::CallbackReturn on_activate(
-            const rclcpp_lifecycle::State& previous_state) override;
+        CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
 
         /**
          * @brief 控制器停用
          */
-        controller_interface::CallbackReturn on_deactivate(
-            const rclcpp_lifecycle::State& previous_state) override;
+        CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
 
     private:
         // 夹爪关节名称

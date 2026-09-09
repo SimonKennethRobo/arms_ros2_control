@@ -21,7 +21,12 @@
     <depend>geometry_msgs</depend>
     <depend>nav_msgs</depend>
     <depend>arms_ros2_control_msgs</depend>
-    <depend>lina_planning</depend>
+    <!-- Used by StateMoveJ (JointTrajectory / Float64MultiArray) but previously
+         only pulled in transitively. -->
+    <depend>trajectory_msgs</depend>
+    <depend>std_msgs</depend>
+    <!-- lina_planning is find_package(... QUIET) and guarded by HAS_LINA_PLANNING;
+         it is a private submodule, so a hard depend here only makes rosdep fail. -->
     <test_depend>ament_lint_auto</test_depend>
     <test_depend>ament_lint_common</test_depend>
 

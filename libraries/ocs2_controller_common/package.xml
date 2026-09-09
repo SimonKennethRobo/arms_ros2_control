@@ -18,10 +18,18 @@
   <depend>tf2_ros</depend>
   <depend>tf2_geometry_msgs</depend>
   <depend>arms_ros2_control_msgs</depend>
-  <depend>ocs2_mobile_manipulator_ros</depend>
+  <!-- Everything find_package()'d as REQUIRED by CMakeLists.txt. -->
+  <depend>ocs2_core</depend>
+  <depend>ocs2_oc</depend>
+  <depend>ocs2_mpc</depend>
+  <depend>ocs2_pinocchio_interface</depend>
+  <depend>ocs2_self_collision</depend>
+  <depend>ocs2_self_collision_visualization</depend>
   <depend>ocs2_ros_interfaces</depend>
-  <depend>lina_planning</depend>
-  <depend>ocs2_wheel_humanoid</depend>
+  <!-- lina_planning and ocs2_wheel_humanoid are find_package(... QUIET) in
+       CMakeLists.txt and guarded behind HAS_LINA_PLANNING / HAS_OCS2_WHEEL_HUMANOID.
+       They are private submodules, so declaring them here only makes rosdep fail.
+       ocs2_mobile_manipulator_ros was declared but never find_package()'d. -->
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

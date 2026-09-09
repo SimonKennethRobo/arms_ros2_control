@@ -11,9 +11,9 @@
 #include <visualization_msgs/msg/interactive_marker_feedback.hpp>
 #include <visualization_msgs/msg/interactive_marker_control.hpp>
 #include <visualization_msgs/msg/marker.hpp>
-#include <tf2_ros/buffer.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-#include <tf2/exceptions.hpp>
+#include <tf2_ros/buffer.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/exceptions.h>
 
 #include "arms_target_manager/MarkerFactory.h"
 
@@ -33,7 +33,7 @@ public:
         std::function<bool()>;
 
     using CurrentPoseCallback =
-        std::function<void(const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose_msg)>;
+        std::function<void(const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)>;
 
     BodyMarker(
         rclcpp::Node::SharedPtr node,
@@ -54,13 +54,13 @@ public:
         bool enable_interaction) const;
 
     geometry_msgs::msg::Pose handleFeedback(
-        const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback,
+        const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback,
         const std::string& source_frame_id) const;
 
-    void updateFromTopic(const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose_msg);
+    void updateFromTopic(const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg);
 
     void updateTargetFromTopic(
-        const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose_msg);
+        const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg);
 
     void setUpdateCallback(UpdateCallback callback) { update_callback_ = std::move(callback); }
     void setStateCheckCallback(StateCheckCallback callback) { state_check_callback_ = std::move(callback); }

@@ -5,8 +5,8 @@
 #include "arms_target_manager/marker/HeadMarker.h"
 #include "arms_target_manager/MarkerFactory.h"
 #include <rclcpp/rclcpp.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-#include <tf2/exceptions.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/exceptions.h>
 #include <algorithm>
 #include <cmath>
 
@@ -394,7 +394,7 @@ namespace arms_ros2_control::command
     }
 
     geometry_msgs::msg::Pose HeadMarker::updateFromJointState(
-        const sensor_msgs::msg::JointState::ConstSharedPtr& joint_msg,
+        const sensor_msgs::msg::JointState::ConstSharedPtr joint_msg,
         bool is_state_disabled)
     {
         // 先检查状态：如果状态禁用，只更新位置（不进行节流检查，因为位置更新是必要的）
@@ -525,7 +525,7 @@ namespace arms_ros2_control::command
         return true;
     }
 
-    void HeadMarker::initializeJointIndices(const sensor_msgs::msg::JointState::ConstSharedPtr& joint_msg)
+    void HeadMarker::initializeJointIndices(const sensor_msgs::msg::JointState::ConstSharedPtr joint_msg)
     {
         for (const auto& [joint_name, rpy_name] : head_joint_to_rpy_mapping_)
         {
@@ -567,7 +567,7 @@ namespace arms_ros2_control::command
     }
 
     bool HeadMarker::extractRPYFromJointState(
-        const sensor_msgs::msg::JointState::ConstSharedPtr& joint_msg,
+        const sensor_msgs::msg::JointState::ConstSharedPtr joint_msg,
         double& head_roll,
         double& head_pitch,
         double& head_yaw) const

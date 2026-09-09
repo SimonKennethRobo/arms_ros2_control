@@ -11,8 +11,15 @@ namespace adaptive_gripper_controller
         gripper_interfaces_.clear();
     }
 
-    controller_interface::CallbackReturn AdaptiveGripperController::on_init()
+    controller_interface::return_type AdaptiveGripperController::init(const std::string& controller_name)
     {
+        // Foxy: the base init() creates node_; nothing below works before it.
+        if (const auto ret = ControllerInterface::init(controller_name);
+            ret != controller_interface::return_type::OK)
+        {
+            return ret;
+        }
+
         joint_name_ = auto_declare<std::string>("joint", "gripper_joint");
 
         // 获取控制器名称（节点名称就是控制器名称）
@@ -31,10 +38,10 @@ namespace adaptive_gripper_controller
                     force_threshold_,
                     force_feedback_ratio_);
 
-        return controller_interface::CallbackReturn::SUCCESS;
+        return controller_interface::return_type::OK;
     }
 
-    controller_interface::CallbackReturn AdaptiveGripperController::on_configure(
+    AdaptiveGripperController::CallbackReturn AdaptiveGripperController::on_configure(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         // 构建需要的状态接口类型列表
@@ -163,10 +170,10 @@ namespace adaptive_gripper_controller
                      "Target percent control subscribed to topic: %s (0.0=closed, 1.0=open, auto force feedback)",
                      target_percent_topic.c_str());
 
-        return controller_interface::CallbackReturn::SUCCESS;
+        return CallbackReturn::SUCCESS;
     }
 
-    controller_interface::CallbackReturn AdaptiveGripperController::on_activate(
+    AdaptiveGripperController::CallbackReturn AdaptiveGripperController::on_activate(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         // 查找位置命令接口（必须是指定关节的）
@@ -175,7 +182,7 @@ namespace adaptive_gripper_controller
             [this](const hardware_interface::LoanedCommandInterface& command_interface)
             {
                 return command_interface.get_interface_name() == hardware_interface::HW_IF_POSITION &&
-                    command_interface.get_prefix_name() == joint_name_;
+                    command_interface.get_name() == joint_name_;
             });
 
         if (command_interface_it == command_interfaces_.end())
@@ -183,7 +190,7 @@ namespace adaptive_gripper_controller
             RCLCPP_ERROR(get_node()->get_logger(),
                          "Expected position command interface for joint: %s",
                          joint_name_.c_str());
-            return controller_interface::CallbackReturn::ERROR;
+            return CallbackReturn::ERROR;
         }
 
         // 查找位置状态接口（必须是指定关节的）
@@ -192,7 +199,7 @@ namespace adaptive_gripper_controller
             [this](const hardware_interface::LoanedStateInterface& state_interface)
             {
                 return state_interface.get_interface_name() == hardware_interface::HW_IF_POSITION &&
-                    state_interface.get_prefix_name() == joint_name_;
+                    state_interface.get_name() == joint_name_;
             });
 
         if (position_state_interface_it == state_interfaces_.end())
@@ -200,7 +207,7 @@ namespace adaptive_gripper_controller
             RCLCPP_ERROR(get_node()->get_logger(),
                          "Expected position state interface for joint: %s",
                          joint_name_.c_str());
-            return controller_interface::CallbackReturn::ERROR;
+            return CallbackReturn::ERROR;
         }
 
         // 如果配置了 effort 接口参数，则查找并绑定（use_effort_interface_ 直接决定是否请求过 effort 接口）
@@ -211,7 +218,7 @@ namespace adaptive_gripper_controller
                 [this](const hardware_interface::LoanedStateInterface& state_interface)
                 {
                     return state_interface.get_interface_name() == hardware_interface::HW_IF_EFFORT &&
-                        state_interface.get_prefix_name() == joint_name_;
+                        state_interface.get_name() == joint_name_;
                 });
 
             if (effort_state_interface_it == state_interfaces_.end())
@@ -219,7 +226,7 @@ namespace adaptive_gripper_controller
                 RCLCPP_ERROR(get_node()->get_logger(),
                              "Effort interface was requested but not found for joint: %s",
                              joint_name_.c_str());
-                return controller_interface::CallbackReturn::ERROR;
+                return CallbackReturn::ERROR;
             }
 
             gripper_interfaces_.effort_state_interface_ = *effort_state_interface_it;
@@ -249,23 +256,21 @@ namespace adaptive_gripper_controller
         // 暂时使用配置的初始值作为关闭位置
         target_position_ = config_initial_position_;
 
-        return controller_interface::CallbackReturn::SUCCESS;
+        return CallbackReturn::SUCCESS;
     }
 
-    controller_interface::CallbackReturn AdaptiveGripperController::on_deactivate(
+    AdaptiveGripperController::CallbackReturn AdaptiveGripperController::on_deactivate(
         const rclcpp_lifecycle::State& /*previous_state*/)
     {
         gripper_interfaces_.clear();
-        return controller_interface::CallbackReturn::SUCCESS;
+        return CallbackReturn::SUCCESS;
     }
 
-    controller_interface::return_type AdaptiveGripperController::update(
-        const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/)
+    controller_interface::return_type AdaptiveGripperController::update()
     {
-        // 读取当前位置（get_optional() 在硬件报错时可能返回 nullopt，需安全处理）
+        // 读取当前位置（Foxy 的 get_value() 没有 optional 语义，失败时直接抛异常）
         const double current_position =
-            gripper_interfaces_.position_state_interface_->get().get_optional().value_or(
-                std::numeric_limits<double>::quiet_NaN());
+            gripper_interfaces_.position_state_interface_->get().get_value();
         if (std::isnan(current_position))
         {
             RCLCPP_ERROR_THROTTLE(get_node()->get_logger(), *get_node()->get_clock(), 1000,
@@ -344,7 +349,7 @@ namespace adaptive_gripper_controller
         if (!direct_position_mode_ && has_effort_interface_)
         {
             const double current_effort =
-                gripper_interfaces_.effort_state_interface_->get().get_optional().value_or(0.0);
+                gripper_interfaces_.effort_state_interface_->get().get_value();
             if (gripper_target_ == 0 && !force_threshold_triggered_ &&
                 std::abs(current_effort) > force_threshold_)
             {
@@ -363,13 +368,8 @@ namespace adaptive_gripper_controller
             }
         }
 
-        // 输出位置命令
-        if (!gripper_interfaces_.position_command_interface_->get().set_value(target_position_))
-        {
-            RCLCPP_ERROR(get_node()->get_logger(),
-                         "Failed to set position command value: %.6f", target_position_);
-            return controller_interface::return_type::ERROR;
-        }
+        // 输出位置命令（Foxy 的 set_value() 返回 void）
+        gripper_interfaces_.position_command_interface_->get().set_value(target_position_);
 
         return controller_interface::return_type::OK;
     }

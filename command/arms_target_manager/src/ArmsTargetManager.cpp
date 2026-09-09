@@ -7,8 +7,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-#include <tf2/exceptions.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/exceptions.h>
 #include <std_msgs/msg/header.hpp>
 #include <cmath>
 #include <algorithm>
@@ -194,7 +194,7 @@ namespace arms_ros2_control::command
             server_->insert(marker);
             server_->setCallback(
                 marker.name,
-                [this](const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback)
+                [this](const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback)
                 {
                     handleMarkerFeedback(feedback);
                 });
@@ -402,7 +402,7 @@ namespace arms_ros2_control::command
             server_->insert(marker);
             server_->setCallback(marker.name,
                                  [this](
-                                 const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback)
+                                 const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback)
                                  {
                                      handleMarkerFeedback(feedback);
                                  });
@@ -511,7 +511,7 @@ namespace arms_ros2_control::command
     }
 
     void ArmsTargetManager::handleMarkerFeedback(
-        const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback)
+        const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback)
     {
         if (feedback->event_type == visualization_msgs::msg::InteractiveMarkerFeedback::KEEP_ALIVE ||
             feedback->event_type == visualization_msgs::msg::InteractiveMarkerFeedback::MENU_SELECT ||
@@ -787,13 +787,13 @@ namespace arms_ros2_control::command
         menu_handler = std::make_shared<interactive_markers::MenuHandler>();
 
         auto menuSendCallback = [sendCallback](
-            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& /*feedback*/)
+            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr /*feedback*/)
         {
             sendCallback();
         };
 
         auto menuToggleCallback = [this](
-            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& /*feedback*/)
+            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr /*feedback*/)
         {
             togglePublishMode();
         };
@@ -816,7 +816,7 @@ namespace arms_ros2_control::command
         }
 
         auto menuBothCallback = [this](
-            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& /*feedback*/)
+            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr /*feedback*/)
         {
             sendDualArmTargetPose();
         };
@@ -866,7 +866,7 @@ namespace arms_ros2_control::command
 
     void ArmsTargetManager::updateMarkerShape()
     {
-        auto markerCallback = [this](const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback)
+        auto markerCallback = [this](const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback)
         {
             handleMarkerFeedback(feedback);
         };
@@ -1110,7 +1110,7 @@ namespace arms_ros2_control::command
     }
 
     void ArmsTargetManager::currentTargetJointCallback(
-        const std_msgs::msg::Float64MultiArray::ConstSharedPtr& msg)
+        const std_msgs::msg::Float64MultiArray::ConstSharedPtr msg)
     {
         if (!msg || !isStateDisabled(current_controller_state_))
         {
@@ -1230,7 +1230,7 @@ namespace arms_ros2_control::command
 
     void ArmsTargetManager::setCurrentPoseCallback(
         const std::string& armType,
-        std::function<void(const geometry_msgs::msg::PoseStamped::ConstSharedPtr&)> callback)
+        std::function<void(const geometry_msgs::msg::PoseStamped::ConstSharedPtr)> callback)
     {
         if (armType == "left" && left_arm_marker_)
         {
@@ -1244,14 +1244,14 @@ namespace arms_ros2_control::command
 
     void ArmsTargetManager::setWbcStateCallback(
         std::function<void(
-            const arms_ros2_control_msgs::msg::WbcCurrentState::ConstSharedPtr&)>
+            const arms_ros2_control_msgs::msg::WbcCurrentState::ConstSharedPtr)>
             callback)
     {
         wbc_state_callback_ = std::move(callback);
     }
 
     void ArmsTargetManager::updateHeadMarkerFromTopic(
-        const sensor_msgs::msg::JointState::ConstSharedPtr& joint_msg)
+        const sensor_msgs::msg::JointState::ConstSharedPtr joint_msg)
     {
         if (!head_marker_ || !head_marker_->isEnabled())
         {

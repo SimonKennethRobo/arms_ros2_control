@@ -20,7 +20,7 @@ namespace ocs2::mobile_manipulator
     public:
         StateHome(arms_controller_common::CtrlInterfaces& ctrl_interfaces,
                  std::shared_ptr<arms_controller_common::GravityCompensation> gravity_compensation = nullptr,
-                 std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node = nullptr)
+                 std::shared_ptr<rclcpp::Node> node = nullptr)
             : arms_controller_common::StateHome(ctrl_interfaces, gravity_compensation, node)
         {
         }

@@ -38,7 +38,7 @@ namespace arms_controller_common
          */
         explicit StateHome(CtrlInterfaces& ctrl_interfaces,
                           const std::shared_ptr<GravityCompensation>& gravity_compensation = nullptr,
-                          const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node = nullptr);
+                          const std::shared_ptr<rclcpp::Node>& node = nullptr);
 
         /**
          * @brief Set single home configuration
@@ -207,7 +207,7 @@ namespace arms_controller_common
         double duration_{3.0};                              // Interpolation duration in seconds (default value, will be updated by updateParam())
         InterpolationType interpolation_type_{InterpolationType::TANH};
         double tanh_scale_{3.0};
-        std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node_; // ROS node for parameter access
+        std::shared_ptr<rclcpp::Node> node_; // ROS node for parameter access
 
         // Unified trajectory manager
         JointTrajectoryManager trajectory_manager_;

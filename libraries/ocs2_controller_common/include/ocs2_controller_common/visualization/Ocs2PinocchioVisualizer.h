@@ -41,7 +41,7 @@ struct Ocs2VisualizerConfig {
 
 class Ocs2PinocchioVisualizer {
 public:
-    Ocs2PinocchioVisualizer(const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node,
+    Ocs2PinocchioVisualizer(const std::shared_ptr<rclcpp::Node>& node,
                             PinocchioInterface pinocchio_interface, Ocs2VisualizerConfig config);
 
     void initialize();
@@ -91,7 +91,7 @@ private:
                                                                  const std::array<double, 3>& color, double line_width,
                                                                  const std::string& namespace_name) const;
 
-    std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node_;
+    std::shared_ptr<rclcpp::Node> node_;
     PinocchioInterface pinocchio_interface_;
     Ocs2VisualizerConfig config_;
 

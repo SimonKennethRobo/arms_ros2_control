@@ -12,7 +12,7 @@ namespace arms_controller_common::utils
 {
     inline rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr
     getOrCreateCurrentTargetJointPublisher(
-        const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node)
+        const std::shared_ptr<rclcpp::Node>& node)
     {
         if (!node)
         {

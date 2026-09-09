@@ -54,22 +54,37 @@ namespace ocs2::mobile_manipulator
         Ocs2ArmController() = default;
         ~Ocs2ArmController() override = default;
 
-        controller_interface::CallbackReturn on_init() override;
-        controller_interface::CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
-        controller_interface::CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-        controller_interface::CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-        controller_interface::CallbackReturn on_cleanup(const rclcpp_lifecycle::State& previous_state) override;
-        controller_interface::CallbackReturn on_error(const rclcpp_lifecycle::State& previous_state) override;
-        controller_interface::CallbackReturn on_shutdown(const rclcpp_lifecycle::State& previous_state) override;
+        // Foxy's controller_interface has no controller_interface::CallbackReturn alias;
+        // the lifecycle callbacks are inherited straight from LifecycleNodeInterface.
+        using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
+        // Foxy has no on_init(); one-time setup happens in init(controller_name),
+        // which must first delegate to ControllerInterface::init() to create node_.
+        controller_interface::return_type init(const std::string& controller_name) override;
+
+        CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
+        CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
+        CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
+        CallbackReturn on_cleanup(const rclcpp_lifecycle::State& previous_state) override;
+        CallbackReturn on_error(const rclcpp_lifecycle::State& previous_state) override;
+        CallbackReturn on_shutdown(const rclcpp_lifecycle::State& previous_state) override;
 
         controller_interface::InterfaceConfiguration command_interface_configuration() const override;
         controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-        controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
+
+        // Foxy's update() takes no arguments; time/period are derived from the node clock.
+        controller_interface::return_type update() override;
 
     private:
         std::shared_ptr<FSMState> getNextState(FSMStateName stateName) const;
         void publishCurrentFsmState() const;
         void syncPoseTargetAcceptance() const;
+
+        // Clock state backing the Foxy update() shim: Foxy does not hand the
+        // controller a time/period pair, so we derive them here and pass them on
+        // to the FSM unchanged.
+        rclcpp::Time last_update_time_{0, 0, RCL_ROS_TIME};
+        bool last_update_time_valid_{false};
 
         // Hardware parameters
         std::string controller_name_;

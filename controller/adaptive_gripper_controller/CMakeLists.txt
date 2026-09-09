@@ -24,15 +24,24 @@ endforeach ()
 add_library(${PROJECT_NAME} SHARED
         src/adaptive_gripper_controller.cpp
 )
+# GCC 9 (Focal) defaults to gnu++14; std::optional/std::clamp need C++17.
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
         PRIVATE
         src)
+# Foxy's ros2_control (0.11) exports no CMake targets, so ${controller_interface_TARGETS}
+# and ${hardware_interface_TARGETS} are empty; ament_target_dependencies covers the
+# old ament_export_libraries style.
+ament_target_dependencies(${PROJECT_NAME} PUBLIC
+        controller_interface
+        hardware_interface
+)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        ${controller_interface_TARGETS}
-        ${hardware_interface_TARGETS}
         ${pluginlib_TARGETS}
         ${rclcpp_TARGETS}
         ${rclcpp_lifecycle_TARGETS}

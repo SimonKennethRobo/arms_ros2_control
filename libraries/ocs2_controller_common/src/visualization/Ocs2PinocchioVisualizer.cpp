@@ -14,7 +14,7 @@
 
 namespace ocs2::controller_common
 {
-    Ocs2PinocchioVisualizer::Ocs2PinocchioVisualizer(const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node,
+    Ocs2PinocchioVisualizer::Ocs2PinocchioVisualizer(const std::shared_ptr<rclcpp::Node>& node,
                                                      PinocchioInterface pinocchio_interface, Ocs2VisualizerConfig config)
         : node_(node),
           pinocchio_interface_(std::move(pinocchio_interface)),

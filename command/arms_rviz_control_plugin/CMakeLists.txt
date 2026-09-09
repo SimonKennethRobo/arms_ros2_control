@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)  # for cmake_language(CALL ...)
+cmake_minimum_required(VERSION 3.10)
 project(arms_rviz_control_plugin)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -6,11 +6,13 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_AUTOMOC OFF)
 
 # Find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rviz_common REQUIRED)
+find_package(pluginlib REQUIRED)
 find_package(arms_controller_common REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
@@ -18,19 +20,14 @@ find_package(geometry_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(arms_ros2_control_msgs REQUIRED)
 
-# rviz2 is built against Qt5 on Jazzy and Qt6 on Kilted+ / Lyrical. A plugin
-# compiled against the wrong Qt major still loads, but QObject vtable layout
-# differs between Qt5 and Qt6, so the first virtual call into a panel SIGSEGV-s
-# inside rviz2 (exit code -11). Discover the major version dynamically by
-# probing Qt6 first (the newer / preferred one) and falling back to Qt5,
-# matching the convention used by rviz_default_plugins.
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+# feat/foxy: Ubuntu 20.04 / Focal never ships Qt6 (rviz2 there is Qt5-only) and
+# its apt cmake (3.16.3) predates cmake_language(CALL ...) (3.18+), which the
+# upstream Qt5/Qt6 dynamic-dispatch build used. Hardcoding Qt5 avoids both
+# problems; if this branch is ever built against a newer distro, redo the
+# dynamic dispatch from ocs2_ros2's pattern instead of relaxing this back.
+find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
-# qtN_wrap_cpp is exported by both Qt5 and Qt6 packages, but CMake does not
-# allow variable expansion in a command name position, so dispatch via
-# cmake_language(CALL ...) to keep the rest of this file version-agnostic.
-cmake_language(CALL qt${QT_VERSION_MAJOR}_wrap_cpp MOC_FILES
+qt5_wrap_cpp(MOC_FILES
         include/arms_rviz_control_plugin/ocs2_fsm_panel.hpp
         include/arms_rviz_control_plugin/gripper_control_panel.hpp
         include/arms_rviz_control_plugin/joint_control_panel.hpp
@@ -53,8 +50,10 @@ include_directories(include)
 # Create library
 add_library(${PROJECT_NAME} SHARED ${MOC_FILES} ${SRC_FILES})
 
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC
-  Qt${QT_VERSION_MAJOR}::Widgets
+  Qt5::Widgets
   ${rclcpp_TARGETS}
   rviz_common::rviz_common
   arms_controller_common::arms_controller_common

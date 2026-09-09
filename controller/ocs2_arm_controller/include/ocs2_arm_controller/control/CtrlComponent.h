@@ -61,7 +61,7 @@ namespace ocs2::mobile_manipulator
     {
     public:
         template <typename AutoDeclareFunc>
-        explicit CtrlComponent(const std::shared_ptr<rclcpp_lifecycle::LifecycleNode>& node,
+        explicit CtrlComponent(const std::shared_ptr<rclcpp::Node>& node,
                                CtrlInterfaces& ctrl_interfaces,
                                AutoDeclareFunc auto_declare)
             : node_(node), ctrl_interfaces_(ctrl_interfaces)
@@ -245,7 +245,7 @@ namespace ocs2::mobile_manipulator
         void publishFsmCommand(int32_t command) const;
 
         // Get node reference
-        std::shared_ptr<rclcpp_lifecycle::LifecycleNode> getNode() const { return node_; }
+        std::shared_ptr<rclcpp::Node> getNode() const { return node_; }
 
         // OCS2 interface (public access)
         std::shared_ptr<MobileManipulatorInterface> interface_;
@@ -276,7 +276,7 @@ namespace ocs2::mobile_manipulator
         /** Split isolcpus: RT / MPC / DDP+viz, and pin DDP ThreadPool before GaussNewtonDDP_MPC construction. */
         void prepareThreadIsolation();
 
-        std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node_;
+        std::shared_ptr<rclcpp::Node> node_;
         CtrlInterfaces& ctrl_interfaces_;
 
         rclcpp::Publisher<ocs2_msgs::msg::MpcObservation>::SharedPtr mpc_observation_publisher_;

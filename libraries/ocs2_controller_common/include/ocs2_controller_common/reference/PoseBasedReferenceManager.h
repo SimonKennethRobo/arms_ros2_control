@@ -26,8 +26,8 @@
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <string>
 #include <vector>
-#include <tf2_ros/buffer.hpp>
-#include <tf2_ros/transform_listener.hpp>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
 
 namespace ocs2::controller_common {
 
@@ -57,7 +57,7 @@ public:
 
     ~PoseBasedReferenceManager() override = default;
 
-    void subscribe(const rclcpp_lifecycle::LifecycleNode::SharedPtr& node);
+    void subscribe(const rclcpp::Node::SharedPtr& node);
 
     /** When false, pose/twist/relative/path stay ignored; stamped is forwarded to setStampedTargetHandlers. */
     void setAcceptingTargets(bool accept);
@@ -224,7 +224,7 @@ private:
     std::shared_ptr<rclcpp::Clock> clock_;
     std::string base_frame_;
 
-    rclcpp_lifecycle::LifecycleNode::SharedPtr node_;
+    rclcpp::Node::SharedPtr node_;
     rclcpp::Logger logger_{rclcpp::get_logger("PoseBasedReferenceManager")};
 
     struct ArmReferenceBuffer {

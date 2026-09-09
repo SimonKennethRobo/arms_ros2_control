@@ -30,7 +30,7 @@ namespace arms_controller_common
          * @param gravity_compensation Optional gravity compensation utility (nullptr if not needed)
          */
         explicit StateHold(CtrlInterfaces& ctrl_interfaces,
-                         std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node = nullptr,
+                         std::shared_ptr<rclcpp::Node> node = nullptr,
                          const std::shared_ptr<GravityCompensation>& gravity_compensation = nullptr);
 
         void enter() override;
@@ -41,7 +41,7 @@ namespace arms_controller_common
     private:
         void updateParam();
 
-        std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node_;
+        std::shared_ptr<rclcpp::Node> node_;
         std::shared_ptr<GravityCompensation> gravity_compensation_;
         std::vector<double> hold_positions_;                  // Positions recorded when entering
         double first_check_position_threshold_{0.1};          // Threshold for the initial hold position check (radians). If <= 0, checking is disabled.

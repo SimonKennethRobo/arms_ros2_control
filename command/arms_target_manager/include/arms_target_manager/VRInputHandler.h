@@ -20,8 +20,8 @@
 #include <std_msgs/msg/int32.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <nav_msgs/msg/path.hpp>
-#include <tf2_ros/buffer.hpp>
-#include <tf2_ros/transform_listener.hpp>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
 #include <controller_manager_msgs/srv/list_controllers.hpp>
 #include <optional>
 #include "arms_target_manager/ArmsTargetManager.h"
@@ -505,7 +505,9 @@ namespace arms_ros2_control::command
         rclcpp::Client<ListControllers>::SharedPtr list_controllers_client_;
         rclcpp::TimerBase::SharedPtr control_topology_timer_;
         std::atomic<ControlTopology> control_topology_{ControlTopology::UNKNOWN};
-        std::optional<rclcpp::Client<ListControllers>::FutureAndRequestId>
+        // Foxy: async_send_request() returns a plain SharedFuture; the
+        // FutureAndRequestId / remove_pending_request API only exists from Humble.
+        std::optional<rclcpp::Client<ListControllers>::SharedFuture>
             pending_topology_request_;
         std::chrono::steady_clock::time_point topology_request_deadline_{};
 

@@ -10,8 +10,8 @@
 #include <geometry_msgs/msg/twist.hpp>
 #include <nav_msgs/msg/path.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <tf2/exceptions.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2/exceptions.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <fstream>
 #include <iomanip>
 #include <limits>
@@ -198,7 +198,7 @@ namespace ocs2::controller_common
     }
 
     void PoseBasedReferenceManager::subscribe(
-        const rclcpp_lifecycle::LifecycleNode::SharedPtr& node)
+        const rclcpp::Node::SharedPtr& node)
     {
         // 保存node引用用于访问参数服务器
         node_ = node;

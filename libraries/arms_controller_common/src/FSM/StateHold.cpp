@@ -8,7 +8,7 @@
 namespace arms_controller_common
 {
     StateHold::StateHold(CtrlInterfaces& ctrl_interfaces,
-                        std::shared_ptr<rclcpp_lifecycle::LifecycleNode> node,
+                        std::shared_ptr<rclcpp::Node> node,
                         const std::shared_ptr<GravityCompensation>& gravity_compensation)
         : FSMState(FSMStateName::HOLD, "HOLD", ctrl_interfaces),
           node_(std::move(node)),
@@ -51,7 +51,7 @@ namespace arms_controller_common
             for (size_t i = 0; i < ctrl_interfaces_.joint_position_state_interface_.size() && 
                  i < hold_positions_.size(); ++i)
             {
-                auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+                auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
                 double current_pos = value.value_or(0.0);
                 double diff = std::abs(current_pos - hold_positions_[i]);
 
@@ -95,7 +95,7 @@ namespace arms_controller_common
                     hold_positions_.resize(num_joints);
                     for (size_t i = 0; i < num_joints; ++i)
                     {
-                        auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+                        auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
                         hold_positions_[i] = value.value_or(0.0);
                     }
                     first_threshold_check_passed_ = true;
@@ -113,7 +113,7 @@ namespace arms_controller_common
                     hold_positions_.resize(num_joints);
                     for (size_t i = 0; i < num_joints; ++i)
                     {
-                        auto value = ctrl_interfaces_.joint_position_state_interface_[i].get().get_optional();
+                        auto value = arms_controller_common::compat::get_optional(ctrl_interfaces_.joint_position_state_interface_[i].get());
                         hold_positions_[i] = value.value_or(0.0);
                     }
 
@@ -150,7 +150,7 @@ namespace arms_controller_common
             std::vector<double> current_positions;
             for (auto i : ctrl_interfaces_.joint_position_state_interface_)
             {
-                auto value = i.get().get_optional();
+                auto value = arms_controller_common::compat::get_optional(i.get());
                 current_positions.push_back(value.value_or(0.0));
             }
 
@@ -160,7 +160,7 @@ namespace arms_controller_common
             for (size_t i = 0; i < ctrl_interfaces_.joint_force_command_interface_.size() && 
                  i < static_torques.size(); ++i)
             {
-                std::ignore = ctrl_interfaces_.joint_force_command_interface_[i].get().set_value(static_torques[i]);
+                ctrl_interfaces_.joint_force_command_interface_[i].get().set_value(static_torques[i]);
             }
             if (ctrl_interfaces_.default_gains_.size() >= 2)
             {
@@ -169,12 +169,12 @@ namespace arms_controller_common
 
                 for (auto& kp_interface : ctrl_interfaces_.joint_kp_command_interface_)
                 {
-                    std::ignore = kp_interface.get().set_value(kp);
+                    kp_interface.get().set_value(kp);
                 }
 
                 for (auto& kd_interface : ctrl_interfaces_.joint_kd_command_interface_)
                 {
-                    std::ignore = kd_interface.get().set_value(kd);
+                    kd_interface.get().set_value(kd);
                 }
             }
         }

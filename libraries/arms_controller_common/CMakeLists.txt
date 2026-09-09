@@ -13,6 +13,7 @@ set(dependencies
         hardware_interface
         rclcpp
         rclcpp_action
+        std_msgs
         pinocchio
         urdf
         ament_index_cpp
@@ -63,6 +64,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(${PROJECT_NAME} PRIVATE -Wno-reorder)
 endif()
 
+# GCC 9 (Focal) defaults to gnu++14; std::clamp / std::filesystem need C++17.
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
@@ -71,9 +75,18 @@ target_include_directories(${PROJECT_NAME}
         src
 )
 
+# Foxy's ros2_control (0.11) predates modern CMake target export: hardware_interface
+# ships only ament_export_include_directories/libraries, so ${hardware_interface_TARGETS}
+# is empty and its headers never land on the include path. ament_target_dependencies
+# handles both the old and the new style.
+ament_target_dependencies(${PROJECT_NAME} PUBLIC
+        hardware_interface
+)
+
 target_link_libraries(${PROJECT_NAME} PUBLIC
-        ${hardware_interface_TARGETS}
         ${rclcpp_TARGETS}
+        rclcpp_action::rclcpp_action
+        ${std_msgs_TARGETS}
         pinocchio::pinocchio
         ${urdf_TARGETS}
         ament_index_cpp::ament_index_cpp
@@ -101,6 +114,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         pthread
         rt
 )
+
+# GCC 9 (Focal) still needs the separate stdc++fs library for std::filesystem;
+# it folded into libstdc++ proper in GCC 9.1+/11. Harmless when absent.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1)
+    target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 11)
+    target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
+endif()
+
 
 
 install(

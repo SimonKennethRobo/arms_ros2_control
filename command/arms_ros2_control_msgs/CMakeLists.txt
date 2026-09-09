@@ -4,6 +4,8 @@ project(arms_ros2_control_msgs)
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(builtin_interfaces REQUIRED)
+# std_msgs is listed in DEPENDENCIES below but was never found.
+find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}

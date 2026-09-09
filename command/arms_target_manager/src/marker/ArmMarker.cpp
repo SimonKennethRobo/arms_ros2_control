@@ -5,8 +5,8 @@
 #include "arms_target_manager/marker/ArmMarker.h"
 #include "arms_target_manager/MarkerFactory.h"
 #include <rclcpp/rclcpp.hpp>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
-#include <tf2/exceptions.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/exceptions.h>
 
 namespace arms_ros2_control::command
 {
@@ -174,7 +174,7 @@ namespace arms_ros2_control::command
     }
 
     geometry_msgs::msg::Pose ArmMarker::handleFeedback(
-        const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback,
+        const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback,
         const std::string& source_frame_id) const
     {
         // 转换 pose 到目标 frame
@@ -185,7 +185,7 @@ namespace arms_ros2_control::command
     }
 
     void ArmMarker::updateFromTopic(
-        const geometry_msgs::msg::PoseStamped::ConstSharedPtr& pose_msg)
+        const geometry_msgs::msg::PoseStamped::ConstSharedPtr pose_msg)
     {
         // 先检查是否允许自动更新（只有在非禁用状态下才更新 pose_）
         if (state_check_callback_ && !state_check_callback_())

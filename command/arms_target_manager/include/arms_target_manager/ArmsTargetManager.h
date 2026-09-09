@@ -20,8 +20,8 @@
 #include <interactive_markers/interactive_marker_server.hpp>
 #include <interactive_markers/menu_handler.hpp>
 #include <arms_ros2_control_msgs/msg/inputs.hpp>
-#include <tf2_ros/transform_listener.hpp>
-#include <tf2_ros/buffer.hpp>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
 #include <std_msgs/msg/float64_multi_array.hpp>
 #include <std_msgs/msg/int32.hpp>
 #include <sensor_msgs/msg/joint_state.hpp>
@@ -111,14 +111,14 @@ namespace arms_ros2_control::command
 
         void setCurrentPoseCallback(
             const std::string& armType,
-            std::function<void(const geometry_msgs::msg::PoseStamped::ConstSharedPtr&)> callback);
+            std::function<void(const geometry_msgs::msg::PoseStamped::ConstSharedPtr)> callback);
 
         void setWbcStateCallback(
             std::function<void(
-                const arms_ros2_control_msgs::msg::WbcCurrentState::ConstSharedPtr&)>
+                const arms_ros2_control_msgs::msg::WbcCurrentState::ConstSharedPtr)>
                 callback);
 
-        void currentTargetJointCallback(const std_msgs::msg::Float64MultiArray::ConstSharedPtr& msg);
+        void currentTargetJointCallback(const std_msgs::msg::Float64MultiArray::ConstSharedPtr msg);
 
     private:
         visualization_msgs::msg::InteractiveMarker buildMarker(
@@ -126,7 +126,7 @@ namespace arms_ros2_control::command
             const std::string& markerType) const;
 
         void handleMarkerFeedback(
-            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr& feedback);
+            const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr feedback);
 
         void setupMenu();
 
@@ -147,7 +147,7 @@ namespace arms_ros2_control::command
         void createPublishersAndSubscribers();
 
         void updateHeadMarkerFromTopic(
-            const sensor_msgs::msg::JointState::ConstSharedPtr& joint_msg);
+            const sensor_msgs::msg::JointState::ConstSharedPtr joint_msg);
 
         void updateBodyMarkerVisibility();
         void refreshArmMarkersFromLatestCurrentTargets();
@@ -188,7 +188,7 @@ namespace arms_ros2_control::command
         rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr head_joint_state_subscription_;
         rclcpp::Subscription<arms_ros2_control_msgs::msg::WbcCurrentState>::SharedPtr wbc_state_subscriber_;
         std::function<void(
-            const arms_ros2_control_msgs::msg::WbcCurrentState::ConstSharedPtr&)>
+            const arms_ros2_control_msgs::msg::WbcCurrentState::ConstSharedPtr)>
             wbc_state_callback_;
         rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr body_joint_target_subscriber_;
 

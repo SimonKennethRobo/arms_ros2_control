@@ -23,11 +23,10 @@ Panels:
       - /Current View1
     Name: Views
     Splitter Ratio: 0.5
-  - Class: rviz_common/Time
-    Experimental: false
-    Name: Time
-    SyncMode: 0
-    SyncSource: ""
+  # rviz_common/Time was dropped here: that built-in panel does not exist on
+  # Foxy (added in Humble+); the FSM/gripper/joint panels below are all from
+  # arms_rviz_control_plugin, a separate package that was ported to Foxy and
+  # kept.
   - Class: arms_rviz_control_plugin/OCS2FSMPanel
     Name: OCS2FSMPanel
   - Class: arms_rviz_control_plugin/GripperControlPanel

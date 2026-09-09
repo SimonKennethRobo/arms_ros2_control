@@ -230,7 +230,7 @@ int main(int argc, char** argv)
         {
             target_manager->setWbcStateCallback(
                 [vr_handler_ptr = vr_handler.get()](
-                    const arms_ros2_control_msgs::msg::WbcCurrentState::ConstSharedPtr& msg)
+                    const arms_ros2_control_msgs::msg::WbcCurrentState::ConstSharedPtr msg)
                 {
                     if (vr_handler_ptr)
                     {
@@ -240,7 +240,7 @@ int main(int argc, char** argv)
 
             // 左臂 current_pose 回调
             target_manager->setCurrentPoseCallback("left",
-                [vr_handler_ptr = vr_handler.get()](const geometry_msgs::msg::PoseStamped::ConstSharedPtr& msg)
+                [vr_handler_ptr = vr_handler.get()](const geometry_msgs::msg::PoseStamped::ConstSharedPtr msg)
                 {
                     if (vr_handler_ptr)
                     {
@@ -254,7 +254,7 @@ int main(int argc, char** argv)
             if (dual_arm_mode)
             {
                 target_manager->setCurrentPoseCallback("right",
-                    [vr_handler_ptr = vr_handler.get()](const geometry_msgs::msg::PoseStamped::ConstSharedPtr& msg)
+                    [vr_handler_ptr = vr_handler.get()](const geometry_msgs::msg::PoseStamped::ConstSharedPtr msg)
                     {
                         if (vr_handler_ptr)
                         {
