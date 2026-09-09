@@ -34,10 +34,14 @@
 	path = libraries/teleop_joint_mapper
 	url = git@github.com:fiveages-sim/teleop-joint-mapper.git
 	branch = main
+# [submodule "hardwares/arx_ros2_control"]
+# 	path = hardwares/arx_ros2_control
+# 	url = git@github.com:fiveages-sim/arx-ros2-control.git
+# 	branch = main
 [submodule "hardwares/arx_ros2_control"]
 	path = hardwares/arx_ros2_control
-	url = git@github.com:fiveages-sim/arx-ros2-control.git
-	branch = main
+	url = git@github.com:CarlsonGYC/arx-ros2-control.git
+	branch = feat/foxy
 [submodule "controller/ocs2_wbc_controller"]
 	path = controller/ocs2_wbc_controller
 	url = git@github.com:fiveages-sim/ocs2-wbc-controller.git

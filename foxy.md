@@ -24,19 +24,10 @@ sudo apt update
 sudo apt install -y ros-foxy-ros-base
 
 # ros2_control stack (not in ros-base)
-sudo apt install -y \
-  ros-foxy-ros2-control ros-foxy-ros2-controllers ros-foxy-realtime-tools \
-  ros-foxy-control-msgs ros-foxy-controller-manager-msgs
+sudo apt install -y ros-foxy-ros2-control ros-foxy-ros2-controllers ros-foxy-realtime-tools ros-foxy-control-msgs ros-foxy-controller-manager-msgs
 
 # OCS2 + robot description + arm driver dependencies
-sudo apt install -y \
-  ros-foxy-pinocchio ros-foxy-kdl-parser ros-foxy-orocos-kdl ros-foxy-spdlog-vendor \
-  ros-foxy-interactive-markers ros-foxy-xacro ros-foxy-robot-state-publisher \
-  ros-foxy-rviz2 ros-foxy-joint-state-publisher-gui \
-  libeigen3-dev libboost-log-dev libboost-filesystem-dev liburdfdom-dev \
-  libspdlog-dev libassimp-dev qtbase5-dev \
-  pybind11-dev python3-pybind11 python3-numpy python3-rospkg python3-catkin-pkg \
-  python3-colcon-common-extensions xterm can-utils
+sudo apt install -y ros-foxy-pinocchio ros-foxy-kdl-parser ros-foxy-orocos-kdl ros-foxy-spdlog-vendor ros-foxy-interactive-markers ros-foxy-xacro ros-foxy-robot-state-publisher ros-foxy-rviz2 ros-foxy-joint-state-publisher-gui libeigen3-dev libboost-log-dev libboost-filesystem-dev liburdfdom-dev libspdlog-dev libassimp-dev qtbase5-dev pybind11-dev python3-pybind11 python3-numpy python3-rospkg python3-catkin-pkg python3-colcon-common-extensions xterm can-utils
 ```
 
 ### 1.1 The one Jetson-specific step: newer libstdc++
@@ -87,15 +78,12 @@ git config submodule.submodules/ocs2_robotic_assets.url \
 git submodule update --init submodules/ocs2_robotic_assets
 
 cd ../arms_ros2_control
-git config submodule.hardwares/arx_ros2_control.url \
-  https://github.com/fiveages-sim/arx-ros2-control.git
+git config submodule.hardwares/arx_ros2_control.url https://github.com/fiveages-sim/arx-ros2-control.git
 git submodule update --init hardwares/arx_ros2_control
 
 cd ../robot_descriptions
-git config submodule.common.url \
-  https://github.com/fiveages-sim/robot-descriptions-common.git
-git config submodule.manipulator/ARX.url \
-  https://github.com/fiveages-sim/robot-descriptions-arx.git
+git config submodule.common.url https://github.com/fiveages-sim/robot-descriptions-common.git
+git config submodule.manipulator/ARX.url https://github.com/fiveages-sim/robot-descriptions-arx.git
 git submodule update --init common "manipulator/ARX"
 ```
 
@@ -115,11 +103,7 @@ ln -s ../../robot_descriptions .
 cd ~/WBC/ros2_ws
 source /opt/ros/foxy/setup.bash
 
-colcon build --symlink-install \
-  --packages-up-to ocs2_mobile_manipulator_ros ocs2_arm_controller adaptive_gripper_controller \
-                   arms_target_manager arx_ros2_control arx5_description robot_common_launch \
-                   arms_rviz_control_plugin \
-  --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DBUILD_TESTING=OFF
+colcon build --symlink-install --packages-up-to ocs2_mobile_manipulator_ros ocs2_arm_controller adaptive_gripper_controller arms_target_manager arx_ros2_control arx5_description robot_common_launch arms_rviz_control_plugin --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DBUILD_TESTING=OFF
 ```
 
 **Watch your RAM.** On the x86 dev box (28 cores, 62 GB) a clean build of this
@@ -166,8 +150,7 @@ all reach `active` within a few seconds — check with:
 ros2 control list_controllers
 ```
 
-If `ocs2_arm_controller` fails to spawn with `Controller manager not
-available`, the spawner gave up before the controller finished loading (Foxy's
+If `ocs2_arm_controller` fails to spawn with `Controller manager not available`, the spawner gave up before the controller finished loading (Foxy's
 `spawner.py` default timeout is 10s); this port already sets
 `--controller-manager-timeout 120` on every spawner call, so if you still hit
 this the controller_manager itself is stuck — check the `ros2_control_node`
@@ -244,6 +227,7 @@ with a live arm attached.
    ```bash
    ros2 launch ocs2_arm_controller demo.launch.py robot:=arx5 hardware:=real rviz:=false
    ```
+
    Watch the `ros2_control_node` log for `ArxX5Hardware` messages. `configure()`
    opens the CAN connection and reads URDF params; `start()` homes the arm and
    reads an initial joint state (retries up to 10× over ~1s if the first reads
@@ -263,16 +247,16 @@ Foxy differs from the ROS distro this code was originally written against
 actually an API mismatch already fixed elsewhere on this branch. Quick
 symptom → cause table:
 
-| Symptom | Likely cause |
-|---|---|
-| `undefined reference` at link time for a controller/HI you edited | `ament_target_dependencies` missing — Foxy's ros2_control exports no CMake targets, `${x_TARGETS}` silently expands empty |
-| Controller plugin builds but pluginlib can't find the class | check `plugin_description.xml` / `*.xml` lists exactly the classes that exist — a stale entry (e.g. a class that was renamed) fails silently at `ros2 control list_controllers` load time, not at build time |
-| `dlopen` failure loading `libarx_ros2_control.so` mentioning `GLIBC_2.xx` / `GLIBCXX_3.4.xx` | §1.1 — the vendored SDK `.so` needs a newer libc than installed |
-| Arm HI fails at `start()` with NaN joint reads that never clear | CAN not actually up / wrong interface name / termination resistor — verify with `candump` directly, outside ROS, first |
-| `ocs2_core`'s **test** targets fail to link with an undefined `dlclose` | only happens with `-DBUILD_TESTING=ON`; the fix (`${CMAKE_DL_LIBS}`) is already in `ocs2_core/CMakeLists.txt` on this branch — just don't turn tests on unless you need them |
-| RViz `Could not load resource ...glb` | a stale `/tmp/ocs2_ros2/.../planning_urdf/<hash>.urdf` cache pointing at meshes before they were converted to `.dae` — `rm -rf /tmp/ocs2_ros2` |
-| RViz `PluginlibFactory` error for `arms_rviz_control_plugin/*` | Qt version mismatch or the plugin didn't build — confirm `qtbase5-dev` is Qt5 (Foxy has no Qt6) and that `arms_rviz_control_plugin` is in your `--packages-up-to` list |
-| `spawner.py: Controller manager not available` | spawner timed out before the controller finished configuring — should already be handled by the `--controller-manager-timeout 120` baked into the launch helpers on this branch; if you still see it, something in `ros2_control_node`'s own log failed before that |
+| Symptom                                                                                              | Likely cause                                                                                                                                                                                                                                                            |
+| ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `undefined reference` at link time for a controller/HI you edited                                  | `ament_target_dependencies` missing — Foxy's ros2_control exports no CMake targets, `${x_TARGETS}` silently expands empty                                                                                                                                          |
+| Controller plugin builds but pluginlib can't find the class                                          | check`plugin_description.xml` / `*.xml` lists exactly the classes that exist — a stale entry (e.g. a class that was renamed) fails silently at `ros2 control list_controllers` load time, not at build time                                                      |
+| `dlopen` failure loading `libarx_ros2_control.so` mentioning `GLIBC_2.xx` / `GLIBCXX_3.4.xx` | §1.1 — the vendored SDK`.so` needs a newer libc than installed                                                                                                                                                                                                      |
+| Arm HI fails at`start()` with NaN joint reads that never clear                                     | CAN not actually up / wrong interface name / termination resistor — verify with`candump` directly, outside ROS, first                                                                                                                                                |
+| `ocs2_core`'s **test** targets fail to link with an undefined `dlclose`                    | only happens with`-DBUILD_TESTING=ON`; the fix (`${CMAKE_DL_LIBS}`) is already in `ocs2_core/CMakeLists.txt` on this branch — just don't turn tests on unless you need them                                                                                      |
+| RViz`Could not load resource ...glb`                                                               | a stale`/tmp/ocs2_ros2/.../planning_urdf/<hash>.urdf` cache pointing at meshes before they were converted to `.dae` — `rm -rf /tmp/ocs2_ros2`                                                                                                                    |
+| RViz`PluginlibFactory` error for `arms_rviz_control_plugin/*`                                    | Qt version mismatch or the plugin didn't build — confirm`qtbase5-dev` is Qt5 (Foxy has no Qt6) and that `arms_rviz_control_plugin` is in your `--packages-up-to` list                                                                                            |
+| `spawner.py: Controller manager not available`                                                     | spawner timed out before the controller finished configuring — should already be handled by the`--controller-manager-timeout 120` baked into the launch helpers on this branch; if you still see it, something in `ros2_control_node`'s own log failed before that |
 
 For anything not on this list, `plan.md` §4 has the full reasoning behind every
 Foxy-vs-Jazzy difference found so far, including ones that didn't end up
